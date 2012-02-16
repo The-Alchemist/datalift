@@ -98,6 +98,7 @@ import org.datalift.fwk.project.RdfFileSource;
 import org.datalift.fwk.project.Source;
 import org.datalift.fwk.project.CsvSource.Separator;
 import org.datalift.fwk.project.ProjectModule.UriDesc;
+import org.datalift.fwk.project.XmlSource;
 import org.datalift.fwk.rdf.RdfUtils;
 import org.datalift.fwk.sparql.SparqlEndpoint;
 import org.datalift.fwk.util.CloseableIterator;
@@ -1016,6 +1017,105 @@ public class Workspace extends BaseModule
         }
         return response;
     }
+    
+    @POST
+    @Path("{id}/xmlupload")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadXmlSource(
+                            @PathParam("id") String projectId,
+                            @FormDataParam("description") String description,
+                            @FormDataParam("base_uri") URI baseUri,
+                            @FormDataParam("source") InputStream fileData,
+                            @FormDataParam("source")
+                                    FormDataContentDisposition fileDisposition,
+                            @FormDataParam("file_url") String sourceUrl,
+                            @Context UriInfo uriInfo)
+                                                throws WebApplicationException {
+        if (fileData == null) {
+            this.throwInvalidParamError("source", null);
+        }
+        Response response = null;
+
+        String fileName = null;
+        URL fileUrl = null;
+        if (! isBlank(sourceUrl)) {
+            // Not uploaded data. => A file URL must be provided.
+            try {
+                fileUrl = new URL(sourceUrl);
+                fileName = this.extractFileName(fileUrl, "xml");
+                // Reset input stream to force downloading data from URL.
+                fileData = null;
+            }
+            catch (Exception e) {
+                // Conversion of source base URI to URL failed.
+                this.throwInvalidParamError("file_url", null);
+            }
+        }
+        else {
+            fileName = fileDisposition.getFileName();
+            if (isBlank(fileName)) {
+                this.throwInvalidParamError("source", null);
+            }
+        }
+        // Else: File data have been uploaded.
+
+        log.debug("Processing XML source creation request for {}", fileName);
+        try {
+            // Build object URIs from request path.
+            URI projectUri = this.newProjectId(uriInfo.getBaseUri(), projectId);
+            URI sourceUri = new URI(projectUri.getScheme(), null,
+                                    projectUri.getHost(), projectUri.getPort(),
+                                    this.getSourceId(projectUri.getPath(), fileName),
+                                    null, null);
+            // Retrieve project.
+            Project p = this.loadProject(projectUri);
+            // Save new source data to public project storage.
+            String filePath = this.getProjectFilePath(projectId, fileName);
+            this.getFileData(fileData, fileUrl,
+                                       this.getFileStorage(filePath), uriInfo);
+			// Initialize new source.
+			XmlSource src = this.projectManager.newXmlSource(p, sourceUri,
+					fileName, description, filePath);
+			
+            // Iterate on source content to validate uploaded file.
+            int n = 0;
+            CloseableIterator<?> i = src.iterator();
+            try {
+                for (; i.hasNext(); ) {
+                    n++;
+                    if (n > 100000) break;      // 100000 triples is enough!
+                    i.next();   // Throws TechnicalException if data is invalid.
+                }
+            }
+            catch (Exception e) {
+                throw new IOException("Invalid or empty source data", e);
+            }
+            finally {
+                i.close();
+            }
+            // Persist new source.
+            this.projectManager.saveProject(p);
+            // Notify user of successful creation, redirecting HTML clients
+            // (browsers) to the source tab of the project page.
+            response = this.created(p, sourceUri, ProjectTab.Sources).build();
+
+            log.info("New XML source \"{}\" created", sourceUri);
+        }
+        catch (IOException e) {
+            String src = (fileData != null)? fileName:
+                        (fileUrl != null)? fileUrl.toString(): "file_url";
+            log.fatal("Failed to save source data from {}", e, src);
+            this.throwInvalidParamError(src, e.getLocalizedMessage());
+        }
+        catch (Exception e) {
+            this.handleInternalError(e,
+                            "Failed to create XML source for {}", fileName);
+        }
+        return response;
+    }
+	
+	//TODO xml upload modify
+
 
     @GET
     @Path("{id}/{filename}")
