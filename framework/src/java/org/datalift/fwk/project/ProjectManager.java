@@ -219,6 +219,24 @@ public interface ProjectManager
                                 URI uri, String title, String description, 
                                 URI targetGraph, Source parent)
                                                             throws IOException;
+    
+    /**
+     * Creates a new transformed XML source object.
+     * @param  uri           the source URI.
+     * @param  title         the source label.
+     * @param  description	 the description of the source
+     * @param  filePath      the location of the source
+     * @param  targetGraph   the URI of the target named graph.
+     *
+     * @return a new XML source, ready to be
+     *         {@link Project#addSource(Source) associated} to a
+     *         project.
+     * @throws IOException if any error occurred creating the source
+     *         or accessing the underlying data.
+     */
+    public XmlSource newXmlSource(Project project, URI uri, String title,
+                                String description, String filePath)
+                                                            throws IOException;
 
     /**
      * Deletes the specified source object and the associated resources
