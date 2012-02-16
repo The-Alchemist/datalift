@@ -73,6 +73,7 @@ import org.datalift.fwk.project.RdfFileSource;
 import org.datalift.fwk.project.Source;
 import org.datalift.fwk.project.TransformedRdfSource;
 import org.datalift.fwk.project.CsvSource.Separator;
+import org.datalift.fwk.project.XmlSource;
 import org.datalift.fwk.rdf.RdfNamespace;
 import org.datalift.fwk.rdf.Repository;
 import org.datalift.fwk.security.SecurityContext;
@@ -279,6 +280,21 @@ public class DefaultProjectManager implements ProjectManager, LifeCycle
         project.add(src);
         return src;
     }
+    
+    /** {@inheritDoc} **/
+	@Override
+	public XmlSource newXmlSource(Project project, URI uri, String title, String description,
+			String filePath) throws IOException {
+
+		XmlSourceImpl xmlSrc = new XmlSourceImpl(uri.toString(), project);
+		this.initSource(xmlSrc, title, description, null);
+		xmlSrc.setFilePath(filePath);
+		
+        // Add source to project.
+        project.add(xmlSrc);
+
+		return xmlSrc;
+	}
 
     /** {@inheritDoc} */
     @Override
