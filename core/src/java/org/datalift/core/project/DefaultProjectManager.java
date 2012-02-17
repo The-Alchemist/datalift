@@ -474,7 +474,8 @@ public class DefaultProjectManager implements ProjectManager, LifeCycle
                     ProjectImpl.class, OntologyImpl.class,
                     CsvSourceImpl.class, RdfFileSourceImpl.class,
                     SqlSourceImpl.class, SparqlSourceImpl.class,
-                    TransformedRdfSourceImpl.class));
+                    TransformedRdfSourceImpl.class,
+                    XmlSourceImpl.class));
         return classes;
     }
 
