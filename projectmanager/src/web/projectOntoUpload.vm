@@ -37,6 +37,12 @@
 	</div>
       </div>
     </div>
+		<div>
+	<form action="http://localhost:8080/datalift/lov/project/$it.getTitle()/ontologyBrowse.html">
+		<input type="submit" value="Browse Ontology Catalogue" />
+	</form>
+	</div>
+	
   </div>
 #footer
 

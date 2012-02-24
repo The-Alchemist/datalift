@@ -1083,7 +1083,7 @@ public class Workspace extends BaseModule
             try {
                 for (; i.hasNext(); ) {
                     n++;
-                    if (n > 100000) break;      // 100000 triples is enough!
+                    if (n > 100000) break;      // 100000 nodes is enough!
                     i.next();   // Throws TechnicalException if data is invalid.
                 }
             }

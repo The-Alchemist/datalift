@@ -69,7 +69,8 @@ public class XmlSourceImpl extends BaseFileSource<Node> implements XmlSource {
 			for (int i = 0; i < nodeList.getLength(); i++) {
 				Node n = nodeList.item(i);
 				if (!list.contains(n)) {
-					log.trace("Adding node with name - {}", n.getNodeName());
+					if (log.isTraceEnabled())
+						log.trace("Adding node with name - {}", n.getNodeName());
 					list.add(n);
 				}
 				visit(n, level + 1, list);

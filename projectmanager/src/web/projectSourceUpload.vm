@@ -9,6 +9,7 @@
 	#set( $submit = "modify" )
 	#set( $target_csv = "${it.uri}/csvmodify" )
 	#set( $target_rdf = "${it.uri}/rdfmodify" )
+	#set( $target_xml = "${it.uri}/xmluploadModify" )
 	#set( $target_db = "${it.uri}/dbmodify" )
 	#set( $target_sparql = "${it.uri}/sparqlmodify" )
 #else
@@ -17,6 +18,7 @@
 	#set( $target_csv = "${it.uri}/csvupload" )
 	#set( $target_rdf = "${it.uri}/rdfupload" )
 	#set( $target_db = "${it.uri}/dbupload" )
+	#set( $target_xml = "${it.uri}/xmlupload" )
 	#set( $target_sparql = "${it.uri}/sparqlupload")
 #end
 	<title>#i18n($title) - #i18n("workspace.title") - DataLift</title>
@@ -94,6 +96,50 @@
 		<input type="submit" value="#i18n("$submit")"/>
 	</form>
 	</div>
+	
+	
+	<!-- start -->
+		<h3><a href="#">XML</a></h3>
+	<div>
+	<form method="post" action="$target_rdf" enctype="multipart/form-data" class="form_formated">
+#if (!$current)
+		<p>#i18n("project.upload_xml") $esc.html($it.getTitle())</p>
+		<p><input type="file" name="source" size="64"/><br />
+		<label for="file_url">#i18n("project.upload_source.file_url"): </label>
+		<input type="text" id="file_url" name="file_url"/></p>
+#else
+		<input type="hidden" id="current_source" name="current_source" value="$current.uri"/>
+#end
+		<p><label for="description">#i18n("project.upload_source.description"): </label>
+		<input type="text" id="description" name="description" value="$!esc.html($current.description)"/></p>
+		<p><label for="base_uri">#i18n("project.upload_source.base_uri"): </label>
+		<input type="text" id="base_uri" name="base_uri" value="$!esc.html($current.source)"/></p>
+		<input type="submit" value="#i18n("$submit")"/>
+	</form>
+	</div>
+	<!-- end -->
+	<!-- start of XML UI 
+	<h3><a href="#">XML</a></h3>
+	<div>
+	<form method="post" action="$target_xml" enctype="multipart/form-data" class="form_formated">
+#if (!$current)
+		<p>#i18n("project.upload_xml") $esc.html($it.getTitle())</p>
+		<p><input type="file" name="source" size="64"/>
+		<label for="file_url">#i18n("project.upload_source.file_url"): </label>
+		<input type="text" id="file_url" name="file_url"/></p>
+		
+		
+#else
+		<input type="hidden" id="current_source" name="current_source" value="$current.uri"/>
+#end
+		<p><label for="description">#i18n("project.upload_source.description"): </label>
+		<input type="text" id="description" name="description" value="$!esc.html($current.description)"/></p>
+		<p><label for="base_uri">#i18n("project.upload_source.base_uri")</label>
+		<input type="text" id="base_uri" name="base_uri" value="$!esc.html($current.source)"/></p>
+		<input type="submit" value="#i18n("$submit")"/>
+	</form>
+	</div>
+<!-- end of XML UI -->
 
 	<h3><a href="#">#i18n("project.upload_db.title")</a></h3>
 	<div>
