@@ -1,0 +1,164 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.datalift.modules</groupId>
+	<artifactId>rdf-xml-conversion</artifactId>
+	<packaging>jar</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>rdf-xml-conversion</name>
+	<description>A datalift module to convert XML and RDF data to RDF</description>
+	<build>
+		<finalName>rdf-xml-conversion-module</finalName>
+		<plugins>
+
+			<!-- Plugin for compiler -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<inherited>true</inherited>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
+			<!-- Plugin to set encoding -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+
+			<!-- Plugin to build an uber jar -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.3.2</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>onejar</shadedClassifierName>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>			
+		<!-- Plugin to copy compiled file to modules directory-->	
+	     <plugin>
+			<artifactId>maven-antrun-plugin</artifactId>
+			<executions>
+				<execution>
+					<id>1-copy-module</id>
+					<phase>install</phase>
+					<configuration>
+						<tasks> 
+							<echo>Copying the jar file to the modules folder. I hope you set the $DATALIFT_HOME variable already!</echo>
+			<!-- copy the compiled jar to the $DATALIFT_HOME/modules folder-->
+								<copy todir="${env.DATALIFT_HOME}/modules">
+								<fileset dir="${basedir}/target/">
+									<include name="*-onejar.jar" />
+								</fileset>
+								</copy>			
+						</tasks>
+					</configuration>
+					<goals>
+						<goal>run</goal>
+					</goals>
+				</execution>
+			</executions>
+	      </plugin>
+		</plugins>
+	</build>
+	
+	<!-- Project Dependencies--> 
+	<dependencies>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<scope>provided</scope>
+			<artifactId>jersey-server</artifactId>
+			<version>${jersey-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<scope>provided</scope>
+			<artifactId>jersey-json</artifactId>
+			<version>${jersey-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey.contribs</groupId>
+			<scope>provided</scope>
+			<artifactId>jersey-multipart</artifactId>
+			<version>${jersey-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Jersey Client is needed only for testing -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.sun.jersey</groupId> -->
+		<!-- <artifactId>jersey-client</artifactId> -->
+		<!-- <version>${jersey-version}</version> -->
+		<!-- <scope>test</scope> -->
+		<!-- </dependency> -->
+		<dependency>
+			<groupId>net.sf.saxon </groupId>
+			<artifactId>saxon</artifactId>
+			<version>9.0</version>
+		</dependency> 
+		<dependency>
+			<groupId>net.sf.saxon</groupId>
+			<artifactId>saxon-dom</artifactId>
+			<version>9.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openrdf.sesame</groupId>
+			<scope>provided</scope>	
+			<artifactId>sesame-runtime</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.6.1</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.datalift</groupId>
+			<scope>provided</scope>
+			<artifactId>datalift-framework</artifactId>
+			<version>0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.mondeca.clientapps</groupId>
+			<artifactId>rdf-transform</artifactId>
+			<version>6.8.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.mondeca.share</groupId>
+			<artifactId>sesame-toolkit</artifactId>
+			<version>6.8.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+	<properties>
+		<jersey-version>1.9</jersey-version>
+	</properties>
+	<repositories>
+		<repository>
+			<id>m2.java.net</id>
+			<name>Java.net Maven 2 Repository</name>
+			<url>http://download.java.net/maven/2</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+
+</project>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<record Numero="12388552" format="InterXMarc_Complet" type="Authority">
+<leader>00753c0 ap2200027   45  <Pos Code="0004">00753</Pos>
+<Pos Code="05" Sens="Notice modifiée">c</Pos>
+<Pos Code="06" Sens="Notice validée par les services d&apos;autorité">0</Pos>
+<Pos Code="08" Sens="Notice d&apos;autorité">a</Pos>
+<Pos Code="09" Sens="Personne physique">p</Pos>
+<Pos Code="10">2</Pos>
+<Pos Code="11">2</Pos>
+<Pos Code="1216">00027</Pos>
+<Pos Code="20">4</Pos>
+<Pos Code="21">5</Pos>
+</leader>
+<controlfield tag="001">FRBNF123885522<Pos Code="0001">FR</Pos>
+<Pos Code="0204">BNF</Pos>
+<Pos Code="0512">12388552</Pos>
+<Pos Code="13">2</Pos>
+</controlfield>
+<controlfield tag="008">940420100707frfrem          1952      20050624             a 1   <Pos Code="0001">94</Pos>
+<Pos Code="0203">04</Pos>
+<Pos Code="0405">20</Pos>
+<Pos Code="0607">10</Pos>
+<Pos Code="0809">07</Pos>
+<Pos Code="1011">07</Pos>
+<Pos Code="1213" Sens="France">fr</Pos>
+<Pos Code="1416" Sens="français">fre</Pos>
+<Pos Code="17" Sens="Masculin">m</Pos>
+<Pos Code="2831">1952</Pos>
+<Pos Code="3841">2005</Pos>
+<Pos Code="4243">06</Pos>
+<Pos Code="4445">24</Pos>
+<Pos Code="59" Sens="Responsabilité intellectuelle ou artistique">a</Pos>
+<Pos Code="61" Sens="La vedette peut être liée à une notice bibliographique sauf pour l&apos;accès matière RAMEAU">1</Pos>
+</controlfield>
+<datafield tag="045" ind1=" " ind2=" ">
+	<subfield code="a" Sens="Auteur">a</subfield>
+</datafield>
+<datafield tag="100" ind1=" " ind2=" ">
+	<subfield code="w"> 0  b.....</subfield>
+	<subfield code="a">Darré</subfield>
+	<subfield code="m">Yann</subfield>
+	<subfield code="d">1952-2005</subfield>
+</datafield>
+<datafield tag="600" ind1=" " ind2=" ">
+	<subfield code="a">Docteur en sociologie</subfield>
+	<subfield code="a">Chercheur au GRASS, Groupe d&apos;analyse du social et de la sociabilité, Paris (en 2000)</subfield>
+</datafield>
+<datafield tag="610" ind1=" " ind2=" ">
+	<subfield code="a">La fonction logistique, une nouvelle fonction dans l&apos;entreprise / Centre d&apos;études et de recherches sur les qualifications ; réd. par Yann Darré, 1993</subfield>
+	<subfield code="a">Histoire sociale du cinéma français / Yann Daré, 2000</subfield>
+</datafield>
+<datafield tag="610" ind1=" " ind2=" ">
+	<subfield code="a">Esquisse d&apos;une sociologie du cinéma  / Yann Darré. In : Actes de la recherche en sciences sociales, 161-162, 2006-01 (en ligne)</subfield>
+	<subfield code="u">http://www.cairn.info/article.php?ID_ARTICLE=ARSS_161_0122#citation</subfield>
+	<subfield code="d">2010-07-07</subfield>
+</datafield>
+<datafield tag="907" ind1=" " ind2=" ">
+	<subfield code="o">GEA</subfield>
+	<subfield code="a">005166175</subfield>
+</datafield>
+<datafield tag="917" ind1=" " ind2=" ">
+	<subfield code="o">OPL</subfield>
+	<subfield code="a">01015493X</subfield>
+</datafield>
+<Attr Nom="IDPerenne">ark:/12148/cb123885525</Attr>
+<Attr Nom="NumSource">GEA 005166175</Attr>
+<Attr Nom="Source" Sens="BnF catalogue général (depuis 1999)">A</Attr>
+<Attr Nom="DateCreation">26/04/ 1994</Attr>
+<Attr Nom="ResponsableCreation">MIGV1</Attr>
+<Attr Nom="StructCreation">1</Attr>
+<Attr Nom="DateDerniereValidation">07/07/ 2010</Attr>
+<Attr Nom="ResponsableDerniereValidation">DRUET NICOLE</Attr>
+<Attr Nom="StructPremiereValidation">1</Attr>
+<Attr Nom="DatePremiereValidation">17/05/ 1994</Attr>
+<Attr Nom="ResponsablePremiereValidation">MIGV1</Attr>
+<Attr Nom="StructDerniereValidation">82</Attr>
+<Attr Nom="NumSource" Rep="1">OPL 01015493X</Attr>
+</record>

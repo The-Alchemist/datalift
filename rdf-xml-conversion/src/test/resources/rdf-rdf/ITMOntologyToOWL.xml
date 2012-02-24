@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rules>
+	<common-prefixes><![CDATA[	
+			PREFIX bo:<http://www.mondeca.com/system/basicontology#>
+			PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX oco:<http://www.mondeca.com/system/ontology_creation#>
+	]]></common-prefixes>
+
+	<translate>
+		<from>?x rdf:type bo:Class_cl</from>
+		<to>?x rdf:type rdfs:Class</to>
+	</translate>
+	
+	<rule>
+		<description></description>
+		<expression><![CDATA[			
+			CONSTRUCT { 
+				?x rdfs:subClassOf ?y
+			}
+			WHERE { 
+				_:b1 a oco:View_hierarchy_at .
+				_:b1 oco:parent_rt ?y .
+				_:b1 oco:child_rt ?x
+			}
+		]]></expression>
+	</rule>
+	
+</rules>

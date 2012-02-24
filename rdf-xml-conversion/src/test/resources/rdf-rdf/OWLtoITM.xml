@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rules>
+	<common-prefixes><![CDATA[	
+			PREFIX bo:<http://www.mondeca.com/system/basicontology#>
+			PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX oco:<http://www.mondeca.com/system/ontology_creation#>
+			PREFIX oco_onto:<http://www.mondeca.com/system/ontology_creation_onto#>
+			PREFIX owl:<http://www.w3.org/2002/07/owl#>
+			PREFIX itm:<http://www.mondeca.com/system/itm#>
+	]]></common-prefixes>
+
+	<translate>
+		<description>
+			Traduction des rdf:type des classes en bo:Class_cl. On prend :
+			  1. toutes les classes sans itm:type,
+			  2. qui ne sont pas des blank nodes
+			  3. qui ne sont pas bo:Association
+		</description>
+		<from><![CDATA[	
+			?x a owl:Class .
+			OPTIONAL { ?x itm:type ?type } .
+			FILTER( !bound(?type) ) .
+			FILTER( !isBlank(?x) ) .
+			FILTER( ?x != <http://www.mondeca.com/system/basicontology#Association> ) 
+		]]></from>
+		<to>?x rdf:type bo:Class_cl</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction des labels des classes. On prend :
+				1. toutes les classes sans itm:type
+				2. qui ne sont pas des blank nodes
+				3. qui ont un label
+			(note : la classe spéciale bo:Association n'a pas de label)
+		</description>
+		<from>
+			?x a owl:Class .
+			OPTIONAL { ?x itm:type ?type } .
+			FILTER( !bound(?type) ) .
+			FILTER( !isBlank(?x) ) .
+			?x rdfs:label ?y
+		</from>
+		<to>
+			?x rdfs:label ?y
+		</to>
+	</translate>
+
+
+	<translate>
+		<description>
+			Traduction du itm:nameTemplate
+		</description>
+		<from>
+			?x itm:nameTemplate ?y
+		</from>
+		<to>
+			?x oco:Name_template ?y
+		</to>
+	</translate>
+	
+	<rule>
+		<description>
+			Traduction des subClassOf en View_Hierarchy. On prend :
+				1. toutes les classes sans itm:type
+				2. si la classe et sa super-classe ne sont pas des blank-nodes
+			(les owl:unionOf, owl:Restriction sont des classes qui sont des blank nodes)			
+		</description>
+		<expression><![CDATA[			
+			CONSTRUCT { 
+				_:b1 a oco:View_hierarchy_at .
+				_:b1 oco:parent_rt ?y .
+				_:b1 oco:child_rt ?x
+			}
+			WHERE {
+				?x a owl:Class .
+				?x rdfs:subClassOf ?y .
+				OPTIONAL { ?x itm:type ?type } .
+				FILTER( !bound(?type) ) .
+				FILTER(!isBlank(?x) && !isBlank(?y))
+			}
+		]]></expression>
+	</rule>
+
+	<rule>
+		<description>
+			Toute les classes sans vrai rdfs:subclassOf sont sous-classes de Home.
+			On bloque la creation de subclassOf entre Home et Home...			
+		</description>
+		<expression><![CDATA[			
+			CONSTRUCT { 
+				_:b1 a oco:View_hierarchy_at .
+				_:b1 oco:parent_rt oco:Home .
+				_:b1 oco:child_rt ?x
+			}
+			WHERE {
+				?x a owl:Class .
+				OPTIONAL { 
+					?x rdfs:subClassOf ?y .
+					FILTER(!isBlank(?y))
+				} .
+				FILTER( !bound(?y) ) .
+				OPTIONAL { ?x itm:type ?type } .
+				FILTER( !bound(?type) ) .
+				FILTER(
+					!isBlank(?x)
+					&&
+					?x != <http://www.mondeca.com/system/basicontology#Association>
+					&&
+					?x != <http://www.mondeca.com/system/ontology_creation#Home>
+					&&
+					?x != <http://www.mondeca.com/system/basicontology#Class_cl>
+				)
+			}
+		]]></expression>
+	</rule>
+	
+	<translate>
+		<description>
+			Traduction des classes des propriétés de type name.		
+		</description>
+		<from>
+			?x a owl:DatatypeProperty .
+			?x itm:type "Name"	
+		</from>
+		<to>
+			?x a bo:Data_Item_Name
+		</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction des classes des propriétés de type link.		
+		</description>
+		<from>
+			?x a owl:DatatypeProperty .
+			?x itm:type "Link"	
+		</from>
+		<to>
+			?x a bo:Data_Item_Link
+		</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction des classes des propriétés de type text.		
+		</description>
+		<from>
+			?x a owl:DatatypeProperty .
+			?x itm:type "Text"	
+		</from>
+		<to>
+			?x a bo:Data_Item_Text
+		</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction des classes des propriétés de type numeric.		
+		</description>
+		<from>
+			?x a owl:DatatypeProperty .
+			?x itm:type "Numeric"	
+		</from>
+		<to>
+			?x a bo:Data_Item_Numeric
+		</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction des classes des propriétés de type time.	
+		</description>
+		<from>
+			?x a owl:DatatypeProperty .
+			?x itm:type "Time"	
+		</from>
+		<to>
+			?x a bo:Data_Item_Time
+		</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction des classes des propriétés de type boolean.	
+		</description>
+		<from>
+			?x a owl:DatatypeProperty .
+			?x itm:type "Boolean"	
+		</from>
+		<to>
+			?x a bo:Data_Item_Pointer
+		</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction des classes des propriétés de type pointer.	
+		</description>
+		<from>
+			?x a owl:ObjectProperty .
+			?x itm:type "Pointer"	
+		</from>
+		<to>
+			?x a bo:Data_Item_Pointer
+		</to>
+	</translate>
+	
+	<rule>
+		<description>
+			Traduction des labels de toutes les properties. On prend :
+				1. Les DatatypeProperty avec un itm:type connu
+				2. Les ObjectProperties qui sont des pointeurs
+		</description>
+		<expression><![CDATA[			
+			CONSTRUCT { 
+				?x rdfs:label ?y
+			}
+			WHERE { 
+				{
+					?x a owl:DatatypeProperty .
+					?x rdfs:label ?y .
+					{
+						{ ?x itm:type "Name" }
+						UNION
+						{ ?x itm:type "Link" }
+						UNION
+						{ ?x itm:type "Numeric" }
+						UNION
+						{ ?x itm:type "Text" }
+						UNION
+						{ ?x itm:type "Time" }
+						UNION
+						{ ?x itm:type "Boolean" }
+					}
+				}
+				UNION
+				{
+					?x a owl:ObjectProperty .
+					?x rdfs:label ?y .
+					?x itm:type "Pointer"
+				}
+			}
+		]]></expression>
+	</rule>
+	
+	<translate>
+		<description>
+			Traduction du itm:widget de combo
+		</description>
+		<from>
+			?x itm:widget "combo"
+		</from>
+		<to>
+			?x oco:Widget oco:Combo_Box
+		</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction du range
+		</description>
+		<from>
+			?x rdfs:range ?y
+		</from>
+		<to>
+			?x oco:range ?y
+		</to>
+	</translate>
+
+	<rule>
+		<description>
+			Traduction des domaines simples de propriétés en COC. On prend :
+				1. Les domaines qui ne sont pas des blank-nodes
+				2. on va chercher la cardinalité si présente sur une restriction de classe
+			(les owl:unionOf sont des blank-nodes)
+		</description>
+		<expression><![CDATA[			
+			CONSTRUCT { 
+				_:b1 a oco_onto:C.O.C_at .
+				_:b1 oco_onto:c.o.c_occurrence_rt ?x .
+				_:b1 oco_onto:c.o.c_class_rt ?y .
+				_:b1 oco:maximumCardinality ?maxCardinality .
+				_:b1 oco:minimumCardinality ?minCardinality .
+				_:b1 oco:maximumCardinality ?cardinality .
+				_:b1 oco:minimumCardinality ?cardinality
+			}
+			WHERE { 
+				{
+					{ ?x a owl:DatatypeProperty }
+					UNION					
+					{ ?x a owl:ObjectProperty }
+				}
+				?x rdfs:domain ?y .
+				FILTER(!isBlank(?y)) .
+				OPTIONAL {
+					?y rdfs:subClassOf _:r1 .
+					_:r1 a owl:Restriction .
+					_:r1 owl:onProperty ?x .
+					_:r1 owl:maxCardinality ?maxCardinality					
+				} .
+				OPTIONAL {
+					?y rdfs:subClassOf _:r2 .
+					_:r2 a owl:Restriction .
+					_:r2 owl:onProperty ?x .
+					_:r2 owl:minCardinality ?minCardinality					
+				} .
+				OPTIONAL {
+					?y rdfs:subClassOf _:r3 .
+					_:r3 a owl:Restriction .
+					_:r3 owl:onProperty ?x .
+					_:r3 owl:cardinality ?cardinality					
+				}
+			}
+		]]></expression>
+	</rule>
+	
+	<rule>
+		<description>
+			Traduction des domaines complexes de propriétés (owl:unionOf).
+			On prend les domaines qui ont une propriété owl:unionOf, et on
+			prend les éléments qui sont entre 1 et 10.
+			LIMITATION : seuls les 10 premiers éléments sont traités.
+			On va également chercher la cardinalité sur la classe si présente.	
+		</description>
+		<expression><![CDATA[
+			CONSTRUCT { 
+				_:n1 a oco_onto:C.O.C_at .
+				_:n1 oco_onto:c.o.c_occurrence_rt ?x .
+				_:n1 oco_onto:c.o.c_class_rt ?y .
+				_:b1 oco:maximumCardinality ?maxCardinality .
+				_:b1 oco:minimumCardinality ?minCardinality .
+				_:b1 oco:maximumCardinality ?cardinality .
+				_:b1 oco:minimumCardinality ?cardinality
+			}
+			WHERE {
+				?x a owl:DatatypeProperty .
+				?x rdfs:domain ?union .
+				?union owl:unionOf ?list .
+				{
+					{ 
+						?list rdf:first ?y
+					}
+					UNION
+					{
+						?list rdf:rest ?list2 .
+						?list2 rdf:first ?y
+					}
+					UNION
+					{
+						?list rdf:rest ?list2 .
+						?list2 rdf:rest ?list3 .
+						?list3 rdf:first ?y
+					}
+					UNION
+					{
+						?list rdf:rest ?list2 .
+						?list2 rdf:rest ?list3 .
+						?list3 rdf:rest ?list4 .
+						?list4 rdf:first ?y
+					}
+					UNION
+					{
+						?list rdf:rest ?list2 .
+						?list2 rdf:rest ?list3 .
+						?list3 rdf:rest ?list4 .
+						?list4 rdf:rest ?list5 .
+						?list5 rdf:first ?y
+					}
+					UNION
+					{
+						?list rdf:rest ?list2 .
+						?list2 rdf:rest ?list3 .
+						?list3 rdf:rest ?list4 .
+						?list4 rdf:rest ?list5 .
+						?list5 rdf:rest ?list6 .
+						?list6 rdf:first ?y
+					}
+					UNION
+					{
+						?list rdf:rest ?list2 .
+						?list2 rdf:rest ?list3 .
+						?list3 rdf:rest ?list4 .
+						?list4 rdf:rest ?list5 .
+						?list5 rdf:rest ?list6 .
+						?list6 rdf:rest ?list7 .
+						?list7 rdf:first ?y
+					}
+					UNION
+					{
+						?list rdf:rest ?list2 .
+						?list2 rdf:rest ?list3 .
+						?list3 rdf:rest ?list4 .
+						?list4 rdf:rest ?list5 .
+						?list5 rdf:rest ?list6 .
+						?list6 rdf:rest ?list7 .
+						?list7 rdf:rest ?list8 .
+						?list8 rdf:first ?y
+					}
+					UNION
+					{
+						?list rdf:rest ?list2 .
+						?list2 rdf:rest ?list3 .
+						?list3 rdf:rest ?list4 .
+						?list4 rdf:rest ?list5 .
+						?list5 rdf:rest ?list6 .
+						?list6 rdf:rest ?list7 .
+						?list7 rdf:rest ?list8 .
+						?list8 rdf:rest ?list9 .
+						?list9 rdf:first ?y
+					}
+					UNION
+					{
+						?list rdf:rest ?list2 .
+						?list2 rdf:rest ?list3 .
+						?list3 rdf:rest ?list4 .
+						?list4 rdf:rest ?list5 .
+						?list5 rdf:rest ?list6 .
+						?list6 rdf:rest ?list7 .
+						?list7 rdf:rest ?list8 .
+						?list8 rdf:rest ?list9 .
+						?list9 rdf:rest ?list10 .
+						?list10 rdf:first ?y
+					}	
+				} .
+				OPTIONAL {
+					?y rdfs:subClassOf _:r1 .
+					_:r1 a owl:Restriction .
+					_:r1 owl:onProperty ?x .
+					_:r1 owl:maxCardinality ?maxCardinality					
+				} .
+				OPTIONAL {
+					?y rdfs:subClassOf _:r2 .
+					_:r2 a owl:Restriction .
+					_:r2 owl:onProperty ?x .
+					_:r2 owl:minCardinality ?minCardinality					
+				} .
+				OPTIONAL {
+					?y rdfs:subClassOf _:r3 .
+					_:r3 a owl:Restriction .
+					_:r3 owl:onProperty ?x .
+					_:r3 owl:cardinality ?cardinality					
+				}		
+			}
+		]]></expression>
+	</rule>
+
+	<translate>
+		<description>
+			Traduction des rdf:type des types d'association en bo:Association_type_cl.
+			On prend :
+				1. Toutes les instances de classe
+				2. avec un itm:type qui vaut "association"
+		</description>
+		<from><![CDATA[	
+			?x a owl:Class .
+			?x itm:type "association" .
+		]]></from>
+		<to>?x rdf:type bo:Association_type_cl</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction du flag itm:characteristic="hierarchical".
+		</description>
+		<from>
+			?x itm:characteristic "hierarchical"
+		</from>
+		<to>
+			?x oco:Association_Characteristic oco:Hierarchical
+		</to>
+	</translate>	
+
+	<translate>
+		<description>
+			Traduction des labels des types d'association. On prend :
+				1. Toutes les instances de classe
+				2. avec un itm:type qui vaut "association"
+				3. qui ont un rdfs:label
+		</description>
+		<from><![CDATA[	
+			?x a owl:Class .
+			?x itm:type "association" .
+			?x rdfs:label ?y
+		]]></from>
+		<to>?x rdfs:label ?y</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction des restrictions allValuesFrom et création des CRACs.
+				1. La classe OWL avec un itm:type joue le rôle de c.r.a.c_association_rt
+				2. Le owl:onProperty joue le rôle de c.r.a.c_role_rt
+				3. Le owl:allValuesFrom joue le rôle de c.r.a.c_class_rt
+				4. optionnellement, on va chercher la cardinalité que l'on met sur le CRAC				
+		</description>
+		<from><![CDATA[	
+			?x a owl:Class .
+			?x itm:type "association" .
+			?x rdfs:subClassOf _:r1 .
+			_:r1 a owl:Restriction .
+			_:r1 owl:onProperty ?y .
+			_:r1 owl:allValuesFrom ?z .
+			OPTIONAL {
+				?x rdfs:subClassOf _:r2 .
+				_:r2 a owl:Restriction .
+				_:r2 owl:onProperty ?y .
+				_:r2 owl:maxCardinality ?maxCardinality
+			} .
+			OPTIONAL {
+				?x rdfs:subClassOf _:r3 .
+				_:r3 a owl:Restriction .
+				_:r3 owl:onProperty ?y .
+				_:r3 owl:minCardinality ?minCardinality
+			} .
+			OPTIONAL {
+				?x rdfs:subClassOf _:r4 .
+				_:r4 a owl:Restriction .
+				_:r4 owl:onProperty ?y .
+				_:r4 owl:cardinality ?cardinality
+			}
+		]]></from>
+		<to>
+			_:n1 a oco_onto:C.R.A.C_at .
+			_:n1 oco_onto:c.r.a.c_association_rt ?x .
+			_:n1 oco_onto:c.r.a.c_role_rt ?y .
+			_:n1 oco_onto:c.r.a.c_class_rt ?z .
+			_:n1 oco:maximumCardinality ?maxCardinality .
+			_:n1 oco:minimumCardinality ?minCardinality .
+			_:n1 oco:maximumCardinality ?cardinality .
+			_:n1 oco:minimumCardinality ?cardinality
+		</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction des rdf:type des types de role. On prend :
+				1. Toutes les instances de ObjectProperty
+				2. avec un itm:type qui vaut "role"
+		</description>
+		<from><![CDATA[	
+			?x a owl:ObjectProperty .
+			?x itm:type "role" .
+		]]></from>
+		<to>?x rdf:type bo:Role_type_cl</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction des labels des types de rôles. On prend :
+				1. Toutes les instances de ObjectProperty
+				2. avec un itm:type qui vaut "role"
+				3. avec un rdfs:label
+		</description>
+		<from><![CDATA[	
+			?x a owl:ObjectProperty .
+			?x itm:type "role" .
+			?x rdfs:label ?y
+		]]></from>
+		<to>?x rdfs:label ?y</to>
+	</translate>	
+
+	<translate>
+		<description>
+			Traduction du flag itm:orientation="in"
+		</description>
+		<from><![CDATA[	
+			?x a owl:ObjectProperty .
+			?x itm:type "role" .
+			?x itm:orientation "in"
+		]]></from>
+		<to>?x oco:roleOrientation oco:in</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction du flag itm:orientation="out"
+		</description>
+		<from><![CDATA[	
+			?x a owl:ObjectProperty .
+			?x itm:type "role" .
+			?x itm:orientation "out"
+		]]></from>
+		<to>?x oco:roleOrientation oco:out</to>
+	</translate>
+
+	<translate>
+		<description>
+			Traduction du flag itm:orientation="top"
+		</description>
+		<from><![CDATA[	
+			?x a owl:ObjectProperty .
+			?x itm:type "role" .
+			?x itm:orientation "top"
+		]]></from>
+		<to>?x oco:roleOrientation oco:top</to>
+	</translate>
+	
+</rules>

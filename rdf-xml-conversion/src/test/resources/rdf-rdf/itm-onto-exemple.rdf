@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+  <!ENTITY itm "http://www.mondeca.com/system/itm#">
+  <!ENTITY ontoex "http://www.mondeca.com/ontoex">
+  <!ENTITY owl "http://www.w3.org/2002/07/owl#">
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xml:base="&ontoex;"
+         xmlns:itm="&itm;"
+         xmlns:owl="&owl;"
+         xmlns:rdf="&rdf;"
+         xmlns:rdfs="&rdfs;">
+
+  <owl:Class rdf:about="#EmploiPersonnel"
+             itm:type="association">
+    <rdfs:label xml:lang="fr">Personnel</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://www.mondeca.com/system/basicontology#Association"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="#Acteur">
+  	<rdfs:label xml:lang="fr">Acteur</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://www.mondeca.com/system/publishing#Subject"/>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:maxCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxCardinality>
+        <owl:onProperty rdf:resource="#adresse"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+  <owl:DatatypeProperty rdf:about="#adresse"
+                        itm:type="Text">
+    <rdfs:domain rdf:resource="#Acteur"/>
+    <rdfs:label xml:lang="fr">adresse</rdfs:label>
+  </owl:DatatypeProperty>
+
+</rdf:RDF>

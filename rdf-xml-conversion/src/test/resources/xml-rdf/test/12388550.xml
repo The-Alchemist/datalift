@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<record Numero="12388550" format="InterXMarc_Complet" type="Authority">
+<leader>00508n1 ac22000272  45  <Pos Code="0004">00508</Pos>
+<Pos Code="05" Sens="Notice nouvelle">n</Pos>
+<Pos Code="06" Sens="Notice validée en catalogage courant">1</Pos>
+<Pos Code="08" Sens="Notice d&apos;autorité">a</Pos>
+<Pos Code="09" Sens="Collectivité">c</Pos>
+<Pos Code="10">2</Pos>
+<Pos Code="11">2</Pos>
+<Pos Code="1216">00027</Pos>
+<Pos Code="17" Sens="Autres cas">2</Pos>
+<Pos Code="20">4</Pos>
+<Pos Code="21">5</Pos>
+</leader>
+<controlfield tag="001">FRBNF123885508<Pos Code="0001">FR</Pos>
+<Pos Code="0204">BNF</Pos>
+<Pos Code="0512">12388550</Pos>
+<Pos Code="13">8</Pos>
+</controlfield>
+<controlfield tag="008">940420      arspa     e3                       ..........  a 1   <Pos Code="0001">94</Pos>
+<Pos Code="0203">04</Pos>
+<Pos Code="0405">20</Pos>
+<Pos Code="1213" Sens="Argentine">ar</Pos>
+<Pos Code="1416" Sens="espagnol [castillan => espagnol]">spa</Pos>
+<Pos Code="2223" Sens="enseignement supérieur et recherche universitaire">e3</Pos>
+<Pos Code="4750">....</Pos>
+<Pos Code="51" Sens="Date certaine">.</Pos>
+<Pos Code="5255">....</Pos>
+<Pos Code="56" Sens="Date certaine">.</Pos>
+<Pos Code="59" Sens="Responsabilité intellectuelle ou artistique">a</Pos>
+<Pos Code="61" Sens="La vedette peut être liée à une notice bibliographique sauf pour l&apos;accès matière RAMEAU">1</Pos>
+</controlfield>
+<datafield tag="045" ind1=" " ind2=" ">
+	<subfield code="a" Sens="Auteur">a</subfield>
+</datafield>
+<datafield tag="110" ind1=" " ind2=" ">
+	<subfield code="w">20..b.....</subfield>
+	<subfield code="a">Escuela de ciencia política y relaciones internacionales</subfield>
+	<subfield code="c">Rosario, Argentine</subfield>
+</datafield>
+<datafield tag="410" ind1=" " ind2=" ">
+	<subfield code="w">   .b.....</subfield>
+	<subfield code="a">Universidad nacional de Rosario</subfield>
+	<subfield code="c">Argentine</subfield>
+	<subfield code="b">Facultad de derecho y ciencias políticas</subfield>
+	<subfield code="b">Escuela de ciencia política y relaciones internacionales</subfield>
+</datafield>
+<datafield tag="610" ind1=" " ind2=" ">
+	<subfield code="a">Rev. derecho int. cienc. dipl., 35-36, 1969</subfield>
+</datafield>
+<datafield tag="610" ind1=" " ind2=" ">
+	<subfield code="a">LCNA (CD OCLC), 1993-12</subfield>
+</datafield>
+<datafield tag="907" ind1=" " ind2=" ">
+	<subfield code="o">GEA</subfield>
+	<subfield code="a">005166143</subfield>
+</datafield>
+<datafield tag="917" ind1=" " ind2=" ">
+	<subfield code="o">OPL</subfield>
+	<subfield code="a">010154915</subfield>
+</datafield>
+<Attr Nom="IDPerenne">ark:/12148/cb12388550g</Attr>
+<Attr Nom="NumSource">OPL 010154915</Attr>
+<Attr Nom="Source" Sens="Imprimés / BN-Opale (1970-1999)">B</Attr>
+<Attr Nom="NbAutoritesTICLiees">0</Attr>
+<Attr Nom="NbAutoritesTUMLiees">0</Attr>
+<Attr Nom="DateCreation">26/04/ 1994</Attr>
+<Attr Nom="ResponsableCreation">MIGV1</Attr>
+<Attr Nom="StructCreation">1</Attr>
+<Attr Nom="DateDerniereValidation">26/09/ 1994</Attr>
+<Attr Nom="ResponsableDerniereValidation">MIGV1</Attr>
+<Attr Nom="StructPremiereValidation">1</Attr>
+<Attr Nom="DatePremiereValidation">26/09/ 1994</Attr>
+<Attr Nom="ResponsablePremiereValidation">MIGV1</Attr>
+<Attr Nom="StructDerniereValidation">1</Attr>
+<Attr Nom="NumSource">OPL 010154897</Attr>
+</record>

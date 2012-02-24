@@ -1,0 +1,1393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rules>
+	<!-- espaces de noms oc et oco à modifier en fonction de la version du kernel  -->
+   <!-- version : 2010-08-03 -->
+
+   <common-prefixes><![CDATA[    
+           PREFIX bo:<http://www.mondeca.com/system/basicontology#>
+           PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+           PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+           PREFIX oc:<http://www.mondeca.com/system/ontology_creation#>
+           PREFIX owl:<http://www.w3.org/2002/07/owl#>
+           PREFIX itm:<http://www.mondeca.com/system/itm#>
+           PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
+           PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+           PREFIX dcterms:<http://purl.org/dc/terms/>
+   ]]></common-prefixes>
+    <collector 
+        id="addMinCardDatatypeCollector"
+        class="com.mondeca.rdf.transform.engine.SetDatatypeCollector"
+        datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#Integer"
+        onProperties="http://www.w3.org/2002/07/owl#minCardinality"
+    />
+    <collector 
+        id="addMaxCardDatatypeCollector"
+        class="com.mondeca.rdf.transform.engine.SetDatatypeCollector"
+        datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#Integer"
+        onProperties="http://www.w3.org/2002/07/owl#maxCardinality"
+    />
+ <rule id="1-rdfs:label">
+       <description>
+           Traduction des labels.
+       </description>
+       <expression><![CDATA[
+       CONSTRUCT
+       {?x rdfs:label ?n}
+
+       WHERE
+       {?x rdfs:label ?n}
+       ]]></expression>
+   </rule>
+
+   <rule id="2-classes">
+       <description>
+           Traduction des types d'assoc et des classes ITM en classes OWL (sauf Home)
+       </description>
+       <expression><![CDATA[
+       CONSTRUCT
+       {?x a owl:Class}
+       
+       WHERE
+       {
+           {?x  a  bo:Class_cl.
+           FILTER (?x  !=  oc:Home)}
+           UNION
+           {?x a bo:Association_type_cl}
+       }
+       ]]></expression>
+   </rule>
+   
+   <rule id="3-equivalentClasses">
+       <description>
+           Traduction de owl:sameAs pour les classes et types d'associations
+       </description>
+       <expression><![CDATA[
+       CONSTRUCT
+       {?x  owl:equivalentClass  ?y}
+       
+       WHERE
+       {
+       {
+           {?x a bo:Class_cl}
+           UNION
+           {?x a bo:Association_type_cl}
+       }.
+           ?x     owl:sameAs    ?y.
+       }
+       ]]></expression>
+   </rule>
+   
+   <rule id="4-equivalentProperties">
+       <description>
+           Traduction de owl:sameAs pour les data item et role type
+       </description>
+       <expression><![CDATA[
+       CONSTRUCT
+       {?x  owl:equivalentProperty  ?y}
+       
+       WHERE
+       {
+       {
+           {?x a bo:Data_Item_Name}
+           UNION
+           {?x a bo:Data_Item_Text}
+           UNION
+           {?x a bo:Data_Item_Link}
+           UNION
+           {?x a bo:Data_Item_Numeric}
+           UNION
+           {?x a bo:Data_Item_Time}
+           UNION
+           {?x a bo:Data_Item_Pointer}
+           UNION
+           {?x a bo:Data_Item_XML}
+           UNION
+           {?x a bo:Role_type_cl}
+       }.
+           ?x     owl:sameAs    ?y
+       }
+       ]]></expression>
+   </rule>
+   
+   <rule id="5-sameAs individuals">
+       <description>
+           Traduction de owl:sameAs pour les instances de classe ITM
+       </description>
+       <expression><![CDATA[
+       CONSTRUCT
+       {?x  owl:sameAs  ?y}
+       
+       WHERE
+       { ?x  a  ?c.
+                     ?c  a  bo:Class_cl.
+         ?x     owl:sameAs    ?y}
+       ]]></expression>
+   </rule>
+
+<rule id="6-ClassHierarchy">
+       <description>
+           Traduction des View hierarchy et Association subtype en rdfs:subClassOf  
+       </description>
+       <expression><![CDATA[
+        
+         CONSTRUCT
+         { ?x rdfs:subClassOf ?y . }
+        
+        WHERE
+            {
+             { ?a a oc:View_hierarchy_at .
+                ?a oc:parent_rt ?y .
+                ?a oc:child_rt ?x.
+               FILTER (?y != oc:Home) }
+               
+             UNION
+             
+             { ?a a oc:associationSubtype .
+      ?a oc:parent_rt ?y .
+      ?a oc:child_rt ?x}
+      }
+      
+       ]]></expression>
+   </rule>
+   
+   <rule id="6a-ClassAssociation">
+       <description>
+            Rattachement des types d'association sans parent sous itm:Association
+       </description>
+       <expression><![CDATA[
+         CONSTRUCT
+         {  itm:Association a owl:Class.
+         itm:Association rdfs:label "Association".
+         ?x    rdfs:subClassOf    itm:Association }
+         
+         WHERE
+              {
+              ?x   a   bo:Association_type_cl.
+      OPTIONAL {
+               ?a a oc:associationSubtype .
+                  ?a oc:parent_rt ?y .
+                 ?a oc:child_rt ?x.
+                 }
+      FILTER( !bound(?y) ) }
+       ]]></expression>
+   </rule>
+   
+   <rule id="6b-ClassTechnical">
+       <description>
+
+Rattachement des classes orphelines (flottantes) sous itm:Technical  </description>
+       <expression><![CDATA[
+         CONSTRUCT
+             {  ?x    rdfs:subClassOf    itm:Technical .
+             itm:Technical a owl:Class.
+             itm:Technical rdfs:label "Technical classe"}
+             
+         WHERE
+              { ?x   a   bo:Class_cl.
+              OPTIONAL 
+              {
+               ?a   a oc:View_hierarchy_at .
+      ?a oc:parent_rt ?y .
+      ?a oc:child_rt ?x.
+      }
+      FILTER( !bound(?y) ) .  }
+       ]]></expression>
+   </rule>
+
+<rule id="7-Subproperties">
+       <description>
+           Traduction des hiérarchies de propriétés        
+       </description>
+       <expression><![CDATA[
+         CONSTRUCT
+         {  ?x    rdfs:subPropertyOf    ?y}
+         
+         WHERE
+              { ?a  a oc:subproperty .
+       ?a  oc:parent_rt ?y .
+       ?a  oc:child_rt  ?x }
+       ]]></expression>
+  </rule>
+
+   <rule id="8a-Annotation-assoc">
+       <description>
+           Annotation des types d'association    
+       </description>
+       <expression><![CDATA[
+             CONSTRUCT
+             {  ?x    itm:type   "association"}
+             
+             WHERE
+                  { ?x  a  bo:Association_type_cl}
+       ]]></expression>
+   </rule>
+   
+   <rule id="8b-Annotation-role">
+       <description>
+           Annotation des types de rôle    
+       </description>
+       <expression><![CDATA[
+             CONSTRUCT
+               {  ?x    itm:type  "role"}
+             
+             WHERE
+                  { ?x  a  bo:Role_type_cl}
+       ]]></expression>
+   </rule>
+   
+   <rule id="8c-Annotation-name">
+       <description>
+           Annotation des types de Data Item Name
+       </description>
+       <expression><![CDATA[
+             CONSTRUCT
+               {  ?x    itm:type  "name"}
+             
+             WHERE
+                  { ?x  a  bo:Data_Item_Name}
+       ]]></expression>
+   </rule>
+   
+   <rule id="8d-Annotation-text">
+       <description>
+           Annotation des types de Data Item Text
+       </description>
+       <expression><![CDATA[
+             CONSTRUCT
+               {  ?x    itm:type  "text"}
+             
+             WHERE
+                  { ?x  a  bo:Data_Item_Text}
+       ]]></expression>
+   </rule>
+   
+   <rule id="8e-Annotation-link">
+       <description>
+           Annotation des types de Data Item Link
+       </description>
+       <expression><![CDATA[
+             CONSTRUCT
+               {  ?x    itm:type  "link"}
+             
+             WHERE
+                  { ?x  a  bo:Data_Item_Link}
+       ]]></expression>
+   </rule>
+   
+   <rule id="8f-Annotation-numeric">
+       <description>
+           Annotation des types de Data Item Numeric
+       </description>
+       <expression><![CDATA[
+             CONSTRUCT
+               {  ?x    itm:type  "numeric"}
+             
+             WHERE
+                  { ?x  a  bo:Data_Item_Numeric}
+       ]]></expression>
+   </rule>
+   
+   <rule id="8g-Annotation-time">
+       <description>
+           Annotation des types de Data Item Time
+       </description>
+       <expression><![CDATA[
+             CONSTRUCT
+               {  ?x    itm:type  "time"}
+             
+             WHERE
+                  { ?x  a  bo:Data_Item_Time}
+       ]]></expression>
+   </rule>
+   
+   <rule id="8h-Annotation-pointer">
+       <description>
+           Annotation des types de Data Item Pointer
+       </description>
+       <expression><![CDATA[
+             CONSTRUCT
+               {  ?x    itm:type  "pointer"}
+             
+             WHERE
+                  { ?x  a  bo:Data_Item_Pointer}
+       ]]></expression>
+   </rule>
+   
+   <rule id="8d-Annotation-xml">
+       <description>
+           Annotation des types de Data Item XML
+       </description>
+       <expression><![CDATA[
+             CONSTRUCT
+               {  ?x    itm:type  "xml"}
+             
+             WHERE
+             { ?x  a  bo:Data_Item_XML}
+       ]]></expression>
+   </rule>
+
+<rule id="9-reification">
+       <description>
+           Transformation des classes de réification
+       </description>
+       <expression><![CDATA[
+             CONSTRUCT
+               {  ?x    itm:reification    ?y.
+                     ?x    owl:equivalentClass  ?y. }
+             
+             WHERE
+              { ?x oc:Reification_class ?y}
+       ]]></expression>
+ </rule>   
+
+<rule id="10a-param_combo">
+       <description>
+           Traduction widget type combo en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+
+{ ?x  itm:param "combo".}
+
+WHERE
+
+{
+?x oc:Widget <http://www.mondeca.com/system/ontology_creation#Combo_Box>.
+
+}
+     ]]></expression>
+</rule>
+
+<rule id="10b-param_UploadField">
+       <description>
+           Traduction widget type UploadField en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{ ?x  itm:param "uploadfield".}
+
+WHERE
+{
+?x oc:Widget <http://www.mondeca.com/system/ontology_creation#UploadField>.
+}
+     ]]></expression>
+</rule>
+   
+<rule id="10c-param_displaynameonly">
+       <description>
+           Traduction widget type displaynameonly en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{ ?x  itm:param "displaynameonly".}
+
+WHERE
+{
+?x oc:Widget <http://www.mondeca.com/system/ontology_creation#DisplayNameOnly>.
+}
+     ]]></expression>
+</rule>
+    <rule id="10d-param_richtexteditor">
+       <description>
+           Traduction widget type richtexteditor en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{ ?x  itm:param "richtexteditor".}
+
+WHERE
+{
+?x oc:Widget <http://www.mondeca.com/system/ontology_creation#RichTextEditor>.
+}
+     ]]></expression>
+</rule>
+
+<rule id="10e-param_abstract">
+       <description>
+           Traduction de abstract en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{ ?x  itm:param "abstract".}
+
+WHERE
+{
+?x oc:abstract <http://www.mondeca.com/system/basicontology#True>.
+}
+     ]]></expression>
+</rule>
+
+<rule id="10f-param_abstract">
+       <description>
+           Traduction de l'attribut non-editable en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{ ?x  itm:param "noedit".}
+
+WHERE
+{
+?x oc:Editable <http://www.mondeca.com/system/basicontology#False>.
+}
+     ]]></expression>
+</rule>
+
+<rule id="10g-param_geographicCoordinates">
+       <description>
+           Traduction de geographiccoordinates en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{ ?x  itm:param "geographiccoordinates".}
+
+WHERE
+{
+?x oc:Data_item_display <http://www.mondeca.com/system/ontology_creation#Geographic_coordinates>.
+}
+     ]]></expression>
+</rule>
+<rule id="10h-param_list">
+       <description>
+           Traduction de display value= list en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{ ?x  itm:param "list".}
+
+WHERE
+{
+?x oc:Data_item_display <http://www.mondeca.com/system/ontology_creation#List>.
+}
+     ]]></expression>
+</rule>
+
+<rule id="10i-param_table">
+       <description>
+           Traduction de display value=table en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{ ?x  itm:param "table".}
+
+WHERE
+{
+?x oc:Data_item_display <http://www.mondeca.com/system/ontology_creation#Table>.
+}
+     ]]></expression>
+</rule>
+
+<rule id="10j-param_thumbnail">
+       <description>
+           Traduction de display value=thumbnail en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{ ?x  itm:param "thumbnail".}
+
+WHERE
+{
+?x oc:Data_item_display <http://www.mondeca.com/system/ontology_creation#Thumbnail>.
+}
+     ]]></expression>
+</rule>  
+
+<rule id="10k-noautomaticcreation">
+       <description>
+           Traduction de automaticcreation=false en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{ ?x  itm:param "noautomaticcreation".}
+
+WHERE
+{
+?x oc:AutoCreation <http://www.mondeca.com/system/basicontology#False>.
+}
+     ]]></expression>
+</rule>  
+<rule id="10l-istechnical">
+       <description>
+           Traduction de istechnical=true en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{ ?x  itm:param "istechnical".}
+
+WHERE
+{
+?x oc:istechnical <http://www.mondeca.com/system/basicontology#True>.
+}
+     ]]></expression>
+</rule>  
+<rule id="10m-nolang">
+       <description>
+           Traduction de Use_language=false en itm:param
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{ ?x  itm:param "nolang".}
+
+WHERE
+{
+?x oc:Use_language <http://www.mondeca.com/system/basicontology#False>.
+{{?x a bo:Data_Item_Name}
+UNION
+{?x a bo:Data_Item_Text}
+UNION
+{?x a bo:Data_Item_Link}}
+}
+     ]]></expression>
+</rule>  
+<rule id="10n-nolangname">
+       <description>
+           Traduction de Use_language=false en itm:param sur une classe
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "nolangname".}
+
+WHERE
+{
+?x oc:Use_language <http://www.mondeca.com/system/basicontology#False>.
+?x a bo:Class_cl.
+}
+    ]]></expression>
+</rule>
+<rule id="10o-showinfo">
+       <description>
+           Traduction de showinfo=true en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "showinfo".}
+
+WHERE
+{
+?x oc:Show_info <http://www.mondeca.com/system/basicontology#True>
+}
+    ]]></expression>
+</rule>
+<rule id="10p-displayasattribute">
+       <description>
+           Traduction de displayasattribute=true en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "displayasattribute".}
+
+WHERE
+{
+?x oc:display_as_attribute <http://www.mondeca.com/system/basicontology#True>
+}
+    ]]></expression>
+</rule>
+<rule id="10q-horizontal">
+       <description>
+           Traduction de Association_Characteristic=horizontal en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "horizontal".}
+
+WHERE
+{
+?x oc:Association_Characteristic <http://www.mondeca.com/system/ontology_creation#Horizontal>
+}
+    ]]></expression>
+</rule>
+
+<rule id="10r-hierarchical">
+       <description>
+           Traduction de Association_Characteristic=hierarchical en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "hierarchical".}
+
+WHERE
+{
+?x oc:Association_Characteristic <http://www.mondeca.com/system/ontology_creation#Hierarchical>
+}
+    ]]></expression>
+</rule>
+   
+<rule id="10s-binary">
+       <description>
+           Traduction de Association_Characteristic=binary en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "binary".}
+
+WHERE
+{
+?x oc:Association_Characteristic <http://www.mondeca.com/system/ontology_creation#Binary>
+}
+    ]]></expression>
+</rule>
+
+<rule id="10t-related">
+       <description>
+           Traduction de Association_Characteristic=related en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "related".}
+
+WHERE
+{
+?x oc:Association_Characteristic <http://www.mondeca.com/system/ontology_creation#Related>
+}
+    ]]></expression>
+</rule>
+<rule id="10u-vertical">
+       <description>
+           Traduction de Association_Characteristic= vertical en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "vertical".}
+
+WHERE
+{
+?x oc:Association_Characteristic <http://www.mondeca.com/system/ontology_creation#Vertical>
+}
+    ]]></expression>
+</rule>
+<rule id="10v-in">
+       <description>
+           Traduction de role orientation= in en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "in".}
+
+WHERE
+{
+?x oc:roleOrientation <http://www.mondeca.com/system/ontology_creation#in>
+}
+    ]]></expression>
+</rule>   
+   
+<rule id="10w-out">
+       <description>
+           Traduction de role orientation=out en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "out".}
+
+WHERE
+{
+?x oc:roleOrientation <http://www.mondeca.com/system/ontology_creation#out>
+}
+    ]]></expression>
+</rule>  
+
+<rule id="10x-top">
+       <description>
+           Traduction de role orientation=top en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "top".}
+
+WHERE
+{
+?x oc:roleOrientation <http://www.mondeca.com/system/ontology_creation#top>
+}
+    ]]></expression>
+</rule>  
+<rule id="10y-searchable">
+       <description>
+           Traduction de searchable en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "searchable".}
+
+WHERE
+{
+?a a oc:List_content.
+?a oc:list <http://www.mondeca.com/system/basicontology#List_1>.
+?a oc:list_element ?x.
+}
+    ]]></expression>
+</rule>
+<rule id="10z-yyyy-mm?-dd?">
+       <description>
+           Traduction de edition format=yyyy-mm?-dd? en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "yyyy-mm?-dd?".}
+
+WHERE
+{
+?x oc:Edition_format <http://www.mondeca.com/system/ontology_creation#YYYY-MMx-DDx>.
+}
+    ]]></expression>
+</rule>
+<rule id="10aa-yyyy-mm-dd">
+       <description>
+           Traduction de edition format=yyyy-mm-dd en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "yyyy-mm-dd".}
+
+WHERE
+{
+?x oc:Edition_format <http://www.mondeca.com/system/ontology_creation#YYYY_MM_DD>.
+}
+    ]]></expression>
+</rule>
+<rule id="10ab-mm-dd">
+       <description>
+           Traduction de edition format=mm-dd en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "mm-dd".}
+
+WHERE
+{
+?x oc:Edition_format <http://www.mondeca.com/system/ontology_creation#MM_DD>.
+}
+    ]]></expression>
+</rule>
+<rule id="10ac-yyyy">
+       <description>
+           Traduction de edition format=yyyy en itm:param
+       </description>
+       <expression><![CDATA[    
+          CONSTRUCT
+{ ?x  itm:param "yyyy".}
+
+WHERE
+{
+?x oc:Edition_format <http://www.mondeca.com/system/ontology_creation#YYYY>.
+}
+    ]]></expression>
+</rule>
+
+   <rule id="11-range">
+       <description>
+           Transformation des range
+       </description>
+       <expression><![CDATA[
+             CONSTRUCT
+               {  ?x    rdfs:range    ?r}
+             
+             WHERE
+             { ?x  oc:range  ?r}
+       ]]></expression>
+   </rule>   
+
+
+<rule id="12a-COC">
+       <description>
+           Transformation des COC
+       </description>
+       <expression><![CDATA[
+             CONSTRUCT
+                 { ?x    rdfs:subClassOf   _:b.
+             ?p      rdfs:domain  _:b }
+             
+             WHERE
+             { ?a   a  oc:C.O.C_at .
+        ?a   oc:c.o.c_occurrence_rt  ?p .
+        ?a   oc:c.o.c_class_rt  ?x }
+       ]]></expression>
+   </rule>
+
+<rule id="12b1-CRAC">
+       <description>
+           Traduction des CRAC en contraintes locales
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{
+_:r1 a owl:Restriction.
+?x  rdfs:subClassOf  _:r1.
+_:r1 owl:allValuesFrom ?y.
+_:r1 owl:onProperty ?p.
+}
+
+
+    WHERE
+{
+         ?a a oc:C.R.A.C_at.
+         ?a oc:c.r.a.c_association_rt ?x.
+         ?a oc:c.r.a.c_role_rt ?p.
+         ?a oc:c.r.a.c_class_rt ?y.
+
+OPTIONAL {?a oc:maximumCardinality ?maxCardinality.}
+
+OPTIONAL {?a oc:minimumCardinality ?minCardinality.}
+
+FILTER (!bound(?maxCardinality)).
+
+FILTER (!bound(?minCardinality)).
+}
+]]></expression>
+
+</rule>
+<rule id="12b2-CRAC">
+       <description>
+           Traduction des cardinalités max sur les CRAC en contraintes locales
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{
+_:r2 a owl:Restriction.
+?x  rdfs:subClassOf  _:r2.
+_:r2 owl:onProperty ?p.
+_:r2 owl:maxCardinality ?maxCardinality.
+}
+
+    WHERE
+{
+         ?a a oc:C.R.A.C_at.
+         ?a oc:c.r.a.c_association_rt ?x.
+         ?a oc:c.r.a.c_role_rt ?p.
+         ?a oc:c.r.a.c_class_rt ?y.
+         ?a oc:maximumCardinality ?maxCardinality.
+}
+]]></expression>
+    <collector>addMaxCardDatatypeCollector</collector>
+</rule>
+
+<rule id="12b3-CRAC">
+       <description>
+           Traduction des cardinalités min sur les CRAC en contraintes locales
+       </description>
+       <expression><![CDATA[    
+           CONSTRUCT
+{
+_:r3 a owl:Restriction.
+?x  rdfs:subClassOf  _:r3.
+_:r3 owl:onProperty ?p.
+_:r3 owl:minCardinality ?minCardinality.
+}
+
+    WHERE
+{
+         ?a a oc:C.R.A.C_at.
+         ?a oc:c.r.a.c_association_rt ?x.
+         ?a oc:c.r.a.c_role_rt ?p.
+         ?a oc:c.r.a.c_class_rt ?y.
+
+?a oc:minimumCardinality ?minCardinality.
+}
+]]></expression>
+    <collector>addMinCardDatatypeCollector</collector>
+</rule>
+<rule id="13-objectProperty">
+       <description>
+           Traduction des data item type pointeur et des rôles en OWL object properties (sauf pour les functional property et inverse functional property)
+       </description>
+       <expression><![CDATA[    
+            CONSTRUCT
+
+{ ?x  a owl:ObjectProperty.}
+
+WHERE
+
+{
+          {{ ?x a bo:Data_Item_Pointer.
+          OPTIONAL {?x oc:range ?range}.}
+          UNION
+          {?x a bo:Role_type_cl}.}
+          FILTER (?range != <http://www.w3.org/2001/XMLSchema#boolean>)
+          }
+      ]]></expression>
+  </rule>
+
+<rule id="14-dataProperty">
+       <description>
+           Traduction des data item type text, name, numeric, link, XML en OWL data properties
+       </description>
+       <expression><![CDATA[    
+            CONSTRUCT
+
+{ ?x  a owl:DatatypeProperty.}
+
+WHERE
+
+{
+
+          {?x a bo:Data_Item_Name}
+
+          UNION
+
+          {?x a bo:Data_Item_Text}
+
+          UNION
+
+          {?x a bo:Data_Item_Link}
+
+          UNION
+
+          {?x a bo:Data_Item_Numeric}
+
+          UNION
+
+          {?x a bo:Data_Item_Time}
+
+          UNION
+
+          {?x a bo:Data_Item_XML}.
+
+    }
+      ]]></expression>
+  </rule>
+
+<rule id="15-dataProperty_boolean">
+       <description>
+           Traduction des data item type booléen en OWL data properties
+       </description>
+       <expression><![CDATA[    
+            CONSTRUCT
+
+{ ?x  a owl:DatatypeProperty.}
+
+WHERE
+
+{
+
+?x a bo:Data_Item_Pointer.
+
+?x oc:range <http://www.w3.org/2001/XMLSchema#boolean>.
+    }
+
+]]></expression>
+  </rule>
+
+<rule id="16-Property_functional">
+       <description>
+           Traduction des cardinalités globales max 1 en owl functional property
+       </description>
+       <expression><![CDATA[    
+            CONSTRUCT
+
+{ ?x  a owl:FunctionalProperty.}
+
+WHERE
+
+{
+
+{
+           {?x a bo:Data_Item_Name}
+           UNION
+           {?x a bo:Data_Item_Text}
+           UNION
+           {?x a bo:Data_Item_Link}
+           UNION
+           {?x a bo:Data_Item_Numeric}
+           UNION
+           {?x a bo:Data_Item_Time}
+           UNION
+           {?x a bo:Data_Item_Pointer}
+           UNION
+           {?x a bo:Data_Item_XML}
+           UNION
+           {?x a bo:Role_type_cl} }
+
+?x oc:maximumCardinality "1.0"^^<http://www.w3.org/2001/XMLSchema#double>.
+
+}
+      ]]></expression>
+</rule>
+    
+    
+ <!-- A revoir ! par exemple, ici, la 1ère règle, s'applique aux  unions de 3 classes, alors qu'elle ne devrait pas  -->
+     <rule id="17-unionOf-2">
+        
+        <description>
+            Traduction des unionOf à 2 éléments
+        </description>
+        <expression><![CDATA[           
+CONSTRUCT { 
+	?x  owl:unionOf  (?y1 ?y2).
+} 
+WHERE {
+	?a1  a oc:UnionOf.
+	?a1  oc:parent_rt ?x.
+	?a1  oc:child_rt ?y1.
+	?a2  a oc:UnionOf.
+	?a2  oc:parent_rt ?x.
+	?a2  oc:child_rt ?y2.
+	FILTER (str(?y1)<str(?y2))
+	OPTIONAL {
+		?a_unknown  a oc:UnionOf.
+		?a_unknown  oc:parent_rt ?x.
+		?a_unknown  oc:child_rt ?y_unknown.
+		FILTER (
+			   ?y_unknown != ?y1
+			&& ?y_unknown != ?y2
+		)
+	}
+	FILTER (!bound(?y_unknown))
+}
+]]></expression>     
+    </rule>
+
+     <rule id="17-unionOf-3">
+        
+        <description>
+            Traduction des unionOf à 3 éléments
+        </description>
+        <expression><![CDATA[           
+CONSTRUCT { 
+	?x  owl:unionOf  (?y1 ?y2 ?y3).
+} 
+WHERE {
+	?a1  a oc:UnionOf.
+	?a1  oc:parent_rt ?x.
+	?a1  oc:child_rt ?y1.
+	?a2  a oc:UnionOf.
+	?a2  oc:parent_rt ?x.
+	?a2  oc:child_rt ?y2.
+	?a3  a oc:UnionOf.
+	?a3  oc:parent_rt ?x.
+	?a3  oc:child_rt ?y3.
+	FILTER (str(?y1)<str(?y2)).
+	FILTER (str(?y2)<str(?y3)).
+	OPTIONAL {
+		?a_unknown  a oc:UnionOf.
+		?a_unknown  oc:parent_rt ?x.
+		?a_unknown  oc:child_rt ?y_unknown.
+		FILTER (
+			   ?y_unknown != ?y1
+			&& ?y_unknown != ?y2
+			&& ?y_unknown != ?y3
+		)
+	}
+	FILTER (!bound(?y_unknown))
+}
+]]></expression>     
+    </rule>
+
+     <rule id="17-unionOf-4">
+        
+        <description>
+            Traduction des unionOf à 4 éléments
+        </description>
+        <expression><![CDATA[           
+CONSTRUCT { 
+	?x  owl:unionOf  (?y1 ?y2 ?y3 ?y4).
+} 
+WHERE {
+	?a1  a oc:UnionOf.
+	?a1  oc:parent_rt ?x.
+	?a1  oc:child_rt ?y1.
+	?a2  a oc:UnionOf.
+	?a2  oc:parent_rt ?x.
+	?a2  oc:child_rt ?y2.
+	?a3  a oc:UnionOf.
+	?a3  oc:parent_rt ?x.
+	?a3  oc:child_rt ?y3.
+	?a4  a oc:UnionOf.
+	?a4  oc:parent_rt ?x.
+	?a4  oc:child_rt ?y4.
+	FILTER (str(?y1)<str(?y2)).
+	FILTER (str(?y2)<str(?y3)).
+	FILTER (str(?y3)<str(?y4)).
+	OPTIONAL {
+		?a_unknown  a oc:UnionOf.
+		?a_unknown  oc:parent_rt ?x.
+		?a_unknown  oc:child_rt ?y_unknown.
+		FILTER (
+			   ?y_unknown != ?y1
+			&& ?y_unknown != ?y2
+			&& ?y_unknown != ?y3
+			&& ?y_unknown != ?y4
+		)
+	}
+	FILTER (!bound(?y_unknown))
+}
+]]></expression>     
+    </rule>
+
+     <rule id="17-unionOf-5">
+        
+        <description>
+            Traduction des unionOf à 5 éléments
+        </description>
+        <expression><![CDATA[           
+CONSTRUCT { 
+	?x  owl:unionOf  (?y1 ?y2 ?y3 ?y4 ?y5).
+} 
+WHERE {
+	?a1  a oc:UnionOf.
+	?a1  oc:parent_rt ?x.
+	?a1  oc:child_rt ?y1.
+	?a2  a oc:UnionOf.
+	?a2  oc:parent_rt ?x.
+	?a2  oc:child_rt ?y2.
+	?a3  a oc:UnionOf.
+	?a3  oc:parent_rt ?x.
+	?a3  oc:child_rt ?y3.
+	?a4  a oc:UnionOf.
+	?a4  oc:parent_rt ?x.
+	?a4  oc:child_rt ?y4.
+	?a5  a oc:UnionOf.
+	?a5  oc:parent_rt ?x.
+	?a5  oc:child_rt ?y5.
+	FILTER (str(?y1)<str(?y2)).
+	FILTER (str(?y2)<str(?y3)).
+	FILTER (str(?y3)<str(?y4)).
+	FILTER (str(?y4)<str(?y5)).
+	OPTIONAL {
+		?a_unknown  a oc:UnionOf.
+		?a_unknown  oc:parent_rt ?x.
+		?a_unknown  oc:child_rt ?y_unknown.
+		FILTER (
+			   ?y_unknown != ?y1
+			&& ?y_unknown != ?y2
+			&& ?y_unknown != ?y3
+			&& ?y_unknown != ?y4
+			&& ?y_unknown != ?y5
+		)
+	}
+	FILTER (!bound(?y_unknown))
+}
+]]></expression>     
+    </rule>
+
+     <rule id="17-unionOf-6">
+        
+        <description>
+            Traduction des unionOf à 6 éléments
+        </description>
+        <expression><![CDATA[           
+CONSTRUCT { 
+	?x  owl:unionOf  (?y1 ?y2 ?y3 ?y4 ?y5 ?y6).
+} 
+WHERE {
+	?a1  a oc:UnionOf.
+	?a1  oc:parent_rt ?x.
+	?a1  oc:child_rt ?y1.
+	?a2  a oc:UnionOf.
+	?a2  oc:parent_rt ?x.
+	?a2  oc:child_rt ?y2.
+	?a3  a oc:UnionOf.
+	?a3  oc:parent_rt ?x.
+	?a3  oc:child_rt ?y3.
+	?a4  a oc:UnionOf.
+	?a4  oc:parent_rt ?x.
+	?a4  oc:child_rt ?y4.
+	?a5  a oc:UnionOf.
+	?a5  oc:parent_rt ?x.
+	?a5  oc:child_rt ?y5.
+	?a6  a oc:UnionOf.
+	?a6  oc:parent_rt ?x.
+	?a6  oc:child_rt ?y6.
+	FILTER (str(?y1)<str(?y2)).
+	FILTER (str(?y2)<str(?y3)).
+	FILTER (str(?y3)<str(?y4)).
+	FILTER (str(?y4)<str(?y5)).
+	FILTER (str(?y5)<str(?y6)).
+	OPTIONAL {
+		?a_unknown  a oc:UnionOf.
+		?a_unknown  oc:parent_rt ?x.
+		?a_unknown  oc:child_rt ?y_unknown.
+		FILTER (
+			   ?y_unknown != ?y1
+			&& ?y_unknown != ?y2
+			&& ?y_unknown != ?y3
+			&& ?y_unknown != ?y4
+			&& ?y_unknown != ?y5
+			&& ?y_unknown != ?y6
+		)
+	}
+	FILTER (!bound(?y_unknown))
+}
+]]></expression>     
+    </rule>
+
+     <rule id="17-unionOf-7">
+        
+        <description>
+            Traduction des unionOf à 7 éléments
+        </description>
+        <expression><![CDATA[           
+CONSTRUCT { 
+	?x  owl:unionOf  (?y1 ?y2 ?y3 ?y4 ?y5 ?y6 ?y7).
+} 
+WHERE {
+	?a1  a oc:UnionOf.
+	?a1  oc:parent_rt ?x.
+	?a1  oc:child_rt ?y1.
+	?a2  a oc:UnionOf.
+	?a2  oc:parent_rt ?x.
+	?a2  oc:child_rt ?y2.
+	?a3  a oc:UnionOf.
+	?a3  oc:parent_rt ?x.
+	?a3  oc:child_rt ?y3.
+	?a4  a oc:UnionOf.
+	?a4  oc:parent_rt ?x.
+	?a4  oc:child_rt ?y4.
+	?a5  a oc:UnionOf.
+	?a5  oc:parent_rt ?x.
+	?a5  oc:child_rt ?y5.
+	?a6  a oc:UnionOf.
+	?a6  oc:parent_rt ?x.
+	?a6  oc:child_rt ?y6.
+	?a7  a oc:UnionOf.
+	?a7  oc:parent_rt ?x.
+	?a7  oc:child_rt ?y7.
+	FILTER (str(?y1)<str(?y2)).
+	FILTER (str(?y2)<str(?y3)).
+	FILTER (str(?y3)<str(?y4)).
+	FILTER (str(?y4)<str(?y5)).
+	FILTER (str(?y5)<str(?y6)).
+	FILTER (str(?y6)<str(?y7)).
+	OPTIONAL {
+		?a_unknown  a oc:UnionOf.
+		?a_unknown  oc:parent_rt ?x.
+		?a_unknown  oc:child_rt ?y_unknown.
+		FILTER (
+			   ?y_unknown != ?y1
+			&& ?y_unknown != ?y2
+			&& ?y_unknown != ?y3
+			&& ?y_unknown != ?y4
+			&& ?y_unknown != ?y5
+			&& ?y_unknown != ?y6
+			&& ?y_unknown != ?y7
+		)
+	}
+	FILTER (!bound(?y_unknown))
+}
+]]></expression>     
+    </rule>
+
+     <rule id="17-unionOf-8">
+        
+        <description>
+            Traduction des unionOf à 8 éléments
+        </description>
+        <expression><![CDATA[           
+CONSTRUCT { 
+	?x  owl:unionOf  (?y1 ?y2 ?y3 ?y4 ?y5 ?y6 ?y7 ?y8).
+} 
+WHERE {
+	?a1  a oc:UnionOf.
+	?a1  oc:parent_rt ?x.
+	?a1  oc:child_rt ?y1.
+	?a2  a oc:UnionOf.
+	?a2  oc:parent_rt ?x.
+	?a2  oc:child_rt ?y2.
+	?a3  a oc:UnionOf.
+	?a3  oc:parent_rt ?x.
+	?a3  oc:child_rt ?y3.
+	?a4  a oc:UnionOf.
+	?a4  oc:parent_rt ?x.
+	?a4  oc:child_rt ?y4.
+	?a5  a oc:UnionOf.
+	?a5  oc:parent_rt ?x.
+	?a5  oc:child_rt ?y5.
+	?a6  a oc:UnionOf.
+	?a6  oc:parent_rt ?x.
+	?a6  oc:child_rt ?y6.
+	?a7  a oc:UnionOf.
+	?a7  oc:parent_rt ?x.
+	?a7  oc:child_rt ?y7.
+	?a8  a oc:UnionOf.
+	?a8  oc:parent_rt ?x.
+	?a8  oc:child_rt ?y8.
+	FILTER (str(?y1)<str(?y2)).
+	FILTER (str(?y2)<str(?y3)).
+	FILTER (str(?y3)<str(?y4)).
+	FILTER (str(?y4)<str(?y5)).
+	FILTER (str(?y5)<str(?y6)).
+	FILTER (str(?y6)<str(?y7)).
+	FILTER (str(?y7)<str(?y8)).
+	OPTIONAL {
+		?a_unknown  a oc:UnionOf.
+		?a_unknown  oc:parent_rt ?x.
+		?a_unknown  oc:child_rt ?y_unknown.
+		FILTER (
+			   ?y_unknown != ?y1
+			&& ?y_unknown != ?y2
+			&& ?y_unknown != ?y3
+			&& ?y_unknown != ?y4
+			&& ?y_unknown != ?y5
+			&& ?y_unknown != ?y6
+			&& ?y_unknown != ?y7
+			&& ?y_unknown != ?y8
+		)
+	}
+	FILTER (!bound(?y_unknown))
+}
+]]></expression>     
+    </rule>
+
+     <rule id="17-unionOf-9">
+        
+        <description>
+            Traduction des unionOf à 9 éléments
+        </description>
+        <expression><![CDATA[           
+CONSTRUCT { 
+	?x  owl:unionOf  (?y1 ?y2 ?y3 ?y4 ?y5 ?y6 ?y7 ?y8 ?y9).
+} 
+WHERE {
+	?a1  a oc:UnionOf.
+	?a1  oc:parent_rt ?x.
+	?a1  oc:child_rt ?y1.
+	?a2  a oc:UnionOf.
+	?a2  oc:parent_rt ?x.
+	?a2  oc:child_rt ?y2.
+	?a3  a oc:UnionOf.
+	?a3  oc:parent_rt ?x.
+	?a3  oc:child_rt ?y3.
+	?a4  a oc:UnionOf.
+	?a4  oc:parent_rt ?x.
+	?a4  oc:child_rt ?y4.
+	?a5  a oc:UnionOf.
+	?a5  oc:parent_rt ?x.
+	?a5  oc:child_rt ?y5.
+	?a6  a oc:UnionOf.
+	?a6  oc:parent_rt ?x.
+	?a6  oc:child_rt ?y6.
+	?a7  a oc:UnionOf.
+	?a7  oc:parent_rt ?x.
+	?a7  oc:child_rt ?y7.
+	?a8  a oc:UnionOf.
+	?a8  oc:parent_rt ?x.
+	?a8  oc:child_rt ?y8.
+	?a9  a oc:UnionOf.
+	?a9  oc:parent_rt ?x.
+	?a9  oc:child_rt ?y9.
+	FILTER (str(?y1)<str(?y2)).
+	FILTER (str(?y2)<str(?y3)).
+	FILTER (str(?y3)<str(?y4)).
+	FILTER (str(?y4)<str(?y5)).
+	FILTER (str(?y5)<str(?y6)).
+	FILTER (str(?y6)<str(?y7)).
+	FILTER (str(?y7)<str(?y8)).
+	FILTER (str(?y8)<str(?y9)).
+	OPTIONAL {
+		?a_unknown  a oc:UnionOf.
+		?a_unknown  oc:parent_rt ?x.
+		?a_unknown  oc:child_rt ?y_unknown.
+		FILTER (
+			   ?y_unknown != ?y1
+			&& ?y_unknown != ?y2
+			&& ?y_unknown != ?y3
+			&& ?y_unknown != ?y4
+			&& ?y_unknown != ?y5
+			&& ?y_unknown != ?y6
+			&& ?y_unknown != ?y7
+			&& ?y_unknown != ?y8
+			&& ?y_unknown != ?y9
+		)
+	}
+	FILTER (!bound(?y_unknown))
+}
+]]></expression>     
+    </rule>
+
+</rules>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<record Numero="12388548" format="InterXMarc_Complet" type="Authority">
+<leader>00580c1 ap22000272  45  <Pos Code="0004">00580</Pos>
+<Pos Code="05" Sens="Notice modifiée">c</Pos>
+<Pos Code="06" Sens="Notice validée en catalogage courant">1</Pos>
+<Pos Code="08" Sens="Notice d&apos;autorité">a</Pos>
+<Pos Code="09" Sens="Personne physique">p</Pos>
+<Pos Code="10">2</Pos>
+<Pos Code="11">2</Pos>
+<Pos Code="1216">00027</Pos>
+<Pos Code="17" Sens="Autres cas">2</Pos>
+<Pos Code="20">4</Pos>
+<Pos Code="21">5</Pos>
+</leader>
+<controlfield tag="001">FRBNF12388548X<Pos Code="0001">FR</Pos>
+<Pos Code="0204">BNF</Pos>
+<Pos Code="0512">12388548</Pos>
+<Pos Code="13">X</Pos>
+</controlfield>
+<controlfield tag="008">940420080603deger           19200220                       a 1   <Pos Code="0001">94</Pos>
+<Pos Code="0203">04</Pos>
+<Pos Code="0405">20</Pos>
+<Pos Code="0607">08</Pos>
+<Pos Code="0809">06</Pos>
+<Pos Code="1011">03</Pos>
+<Pos Code="1213" Sens="Allemagne">de</Pos>
+<Pos Code="1416" Sens="allemand">ger</Pos>
+<Pos Code="2831">1920</Pos>
+<Pos Code="3233">02</Pos>
+<Pos Code="3435">20</Pos>
+<Pos Code="59" Sens="Responsabilité intellectuelle ou artistique">a</Pos>
+<Pos Code="61" Sens="La vedette peut être liée à une notice bibliographique sauf pour l&apos;accès matière RAMEAU">1</Pos>
+</controlfield>
+<datafield tag="045" ind1=" " ind2=" ">
+	<subfield code="a" Sens="Auteur">a</subfield>
+</datafield>
+<datafield tag="100" ind1=" " ind2=" ">
+	<subfield code="w"> 0  b.....</subfield>
+	<subfield code="a">Müller</subfield>
+	<subfield code="m">Claus</subfield>
+	<subfield code="d">1920-....</subfield>
+</datafield>
+<datafield tag="600" ind1=" " ind2=" ">
+	<subfield code="a">Écrit aussi en anglais</subfield>
+</datafield>
+<datafield tag="600" ind1=" " ind2=" ">
+	<subfield code="a">Physicien</subfield>
+	<subfield code="a">En poste : Technische Hochschule, Aix-la-Chapelle, RFA (en 1969)</subfield>
+</datafield>
+<datafield tag="610" ind1=" " ind2=" ">
+	<subfield code="a">Foundations of the mathematical theory of electromagnetic waves / Claus Müller ; [in cooperation with T. P. Higgins], 1969</subfield>
+</datafield>
+<datafield tag="610" ind1=" " ind2=" ">
+	<subfield code="a">LCNA (CD OCLC), 1993-12</subfield>
+	<subfield code="a">Kürschners dtsch. Gel.-Kal., 2005</subfield>
+</datafield>
+<datafield tag="612" ind1=" " ind2=" ">
+	<subfield code="a">WW in science in Europe, 1993</subfield>
+</datafield>
+<datafield tag="907" ind1=" " ind2=" ">
+	<subfield code="o">GEA</subfield>
+	<subfield code="a">005166111</subfield>
+</datafield>
+<datafield tag="909" ind1=" " ind2=" ">
+	<subfield code="a">CRI à vérifier</subfield>
+</datafield>
+<datafield tag="917" ind1=" " ind2=" ">
+	<subfield code="o">OPL</subfield>
+	<subfield code="a">010154897</subfield>
+</datafield>
+<Attr Nom="IDPerenne">ark:/12148/cb12388548x</Attr>
+<Attr Nom="NumSource">GEA 005166111</Attr>
+<Attr Nom="Source" Sens="BnF catalogue général (depuis 1999)">A</Attr>
+<Attr Nom="NbAutoritesTICLiees">0</Attr>
+<Attr Nom="NbAutoritesTUMLiees">0</Attr>
+<Attr Nom="DateCreation">26/04/ 1994</Attr>
+<Attr Nom="ResponsableCreation">MIGV1</Attr>
+<Attr Nom="StructCreation">1</Attr>
+<Attr Nom="DateDerniereValidation">03/06/ 2008</Attr>
+<Attr Nom="ResponsableDerniereValidation">RODOLPHE-ROUSSEAU NICOLE</Attr>
+<Attr Nom="StructPremiereValidation">1</Attr>
+<Attr Nom="DatePremiereValidation">19/09/ 1994</Attr>
+<Attr Nom="ResponsablePremiereValidation">MIGV1</Attr>
+<Attr Nom="StructDerniereValidation">76</Attr>
+<Attr Nom="NumSource" Rep="1">OPL 010154897</Attr>
+</record>
